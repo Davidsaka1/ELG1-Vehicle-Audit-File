@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Audit Form</title>
+    <meta name="description" content="Worksite vehicle pre-shift inspection and incident reporting form">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .form-content {
+            padding: 25px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-item:hover {
+            background: #e9ecef;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .checkbox-item.checked {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .incident-section {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+
+        .incident-section .section-header {
+            background: #ffeaa7;
+            color: #856404;
+        }
+
+        .submit-section {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-ok { background: #28a745; }
+        .status-warning { background: #ffc107; }
+        .status-error { background: #dc3545; }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .summary {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .photo-upload {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: #fafafa;
+            transition: border-color 0.3s ease;
+        }
+
+        .photo-upload:hover {
+            border-color: #667eea;
+        }
+
+        .photo-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Vehicle Audit Form</h1>
+            <p>Pre-shift inspection & incident reporting</p>
+        </div>
+
+        <form id="auditForm">
+            <div class="form-content">
+                <!-- Basic Information -->
+                <div class="section">
+                    <div class="section-header">
+                        <span class="status-indicator status-ok"></span>
+                        Basic Information
+                    </div>
+                    <div class="section-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employeeName">Employee Name <span class="required">*</span></label>
+                                <input type="text" id="employeeName" name="employeeName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicleId">Vehicle ID/License <span class="required">*</span></label>
+                                <input type="text" id="vehicleId" name="vehicleId" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="date">Date <span class="required">*</span></label>
+                                <input type="date" id="date" name="date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="time">Time <span class="required">*</span></label>
+                                <input type="time" id="time" name="time" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mileage">Current Mileage/Hours</label>
+                            <input type="number" id="mileage" name="mileage">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pre-Shift Safety Check -->
+                <div class="section">
+                    <div class="section-header">
+                        <span class="status-indicator status-warning"></span>
+                        Pre-Shift Safety Check
+                    </div>
+                    <div class="section-content">
+                        <p style="margin-bottom: 15px; color: #666;">Check all items that are in good working condition:</p>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="lights" name="safetyCheck" value="lights">
+                                <label for="lights">Lights (headlights, taillights, indicators)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="brakes" name="safetyCheck" value="brakes">
+                                <label for="brakes">Brakes</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="tires" name="safetyCheck" value="tires">
+                                <label for="tires">Tires & Wheels</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="fluids" name="safetyCheck" value="fluids">
+                                <label for="fluids">Fluid Levels</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="mirrors" name="safetyCheck" value="mirrors">
+                                <label for="mirrors">Mirrors</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="seatbelts" name="safetyCheck" value="seatbelts">
+                                <label for="seatbelts">Seatbelts</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="horn" name="safetyCheck" value="horn">
+                                <label for="horn">Horn</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="wipers" name="safetyCheck" value="wipers">
+                                <label for="wipers">Wipers/Washers</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="emergency" name="safetyCheck" value="emergency">
+                                <label for="emergency">Emergency Equipment</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="cleanliness" name="safetyCheck" value="cleanliness">
+                                <label for="cleanliness">Vehicle Cleanliness</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label for="safetyNotes">Safety Check Notes (list any issues found)</label>
+                            <textarea id="safetyNotes" name="safetyNotes" rows="3" placeholder="Describe any problems or concerns..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Incident Reporting -->
+                <div class="section incident-section">
+                    <div class="section-header">
+                        <span class="status-indicator status-error"></span>
+                        Incident/Damage Reporting
+                    </div>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="incidentType">Is there any damage, accident, or incident to report?</label>
+                            <select id="incidentType" name="incidentType">
+                                <option value="">No incident to report</option>
+                                <option value="accident">Traffic Accident</option>
+                                <option value="damage">Vehicle Damage</option>
+                                <option value="near-miss">Near Miss</option>
+                                <option value="mechanical">Mechanical Issue</option>
+                                <option value="other">Other Incident</option>
+                            </select>
+                        </div>
+
+                        <div id="incidentDetails" style="display: none;">
+                            <div class="form-group">
+                                <label for="incidentDescription">Incident Description <span class="required">*</span></label>
+                                <textarea id="incidentDescription" name="incidentDescription" rows="4" placeholder="Provide detailed description: What happened? When? Where? Were there injuries? Was there property damage?"></textarea>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="incidentLocation">Location</label>
+                                    <input type="text" id="incidentLocation" name="incidentLocation" placeholder="Address or location details">
+                                </div>
+                                <div class="form-group">
+                                    <label for="incidentTime">Time of Incident</label>
+                                    <input type="time" id="incidentTime" name="incidentTime">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="injuries">Were there any injuries?</label>
+                                <select id="injuries" name="injuries">
+                                    <option value="no">No injuries</option>
+                                    <option value="minor">Minor injuries</option>
+                                    <option value="serious">Serious injuries</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="witnesses">Witness Information</label>
+                                <textarea id="witnesses" name="witnesses" rows="2" placeholder="Names and contact information of any witnesses"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="photos">Photos (if available)</label>
+                                <div class="photo-upload">
+                                    <input type="file" id="photos" name="photos" multiple accept="image/*">
+                                    <p>📷 Upload photos of damage or incident scene</p>
+                                </div>
+                                <div id="photoPreview"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Status Summary -->
+                <div class="summary" id="summarySection">
+                    <h3>Audit Summary</h3>
+                    <div id="summaryContent"></div>
+                </div>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="submit-btn">Submit Audit Report</button>
+                <p style="margin-top: 10px; color: #666; font-size: 14px;">
+                    Report will be saved and sent to management
+                </p>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Set current date and time
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            document.getElementById('date').value = now.toISOString().split('T')[0];
+            document.getElementById('time').value = now.toTimeString().slice(0, 5);
+        });
+
+        // Handle incident type change
+        document.getElementById('incidentType').addEventListener('change', function() {
+            const incidentDetails = document.getElementById('incidentDetails');
+            const incidentDescription = document.getElementById('incidentDescription');
+            
+            if (this.value) {
+                incidentDetails.style.display = 'block';
+                incidentDescription.required = true;
+            } else {
+                incidentDetails.style.display = 'none';
+                incidentDescription.required = false;
+            }
+            updateSummary();
+        });
+
+        // Handle checkbox styling
+        document.querySelectorAll('input[type="checkbox"][name="safetyCheck"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const item = this.closest('.checkbox-item');
+                if (this.checked) {
+                    item.classList.add('checked');
+                } else {
+                    item.classList.remove('checked');
+                }
+                updateSummary();
+            });
+        });
+
+        // Handle photo preview
+        document.getElementById('photos').addEventListener('change', function() {
+            const preview = document.getElementById('photoPreview');
+            preview.innerHTML = '';
+            
+            Array.from(this.files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.className = 'photo-preview';
+                    img.onload = () => URL.revokeObjectURL(img.src);
+                    preview.appendChild(img);
+                }
+            });
+        });
+
+        // Update summary
+        function updateSummary() {
+            const checkedItems = document.querySelectorAll('input[name="safetyCheck"]:checked');
+            const totalItems = document.querySelectorAll('input[name="safetyCheck"]');
+            const incidentType = document.getElementById('incidentType').value;
+            const summarySection = document.getElementById('summarySection');
+            const summaryContent = document.getElementById('summaryContent');
+            
+            let summaryHTML = `
+                <p><strong>Safety Check:</strong> ${checkedItems.length}/${totalItems.length} items passed</p>
+            `;
+            
+            if (incidentType) {
+                summaryHTML += `<p><strong>Incident:</strong> ${incidentType} reported</p>`;
+            } else {
+                summaryHTML += `<p><strong>Incident:</strong> No incidents reported</p>`;
+            }
+            
+            summaryContent.innerHTML = summaryHTML;
+            summarySection.style.display = 'block';
+        }
+
+        // Form submission
+        document.getElementById('auditForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            // Collect basic info
+            const employeeName = formData.get('employeeName');
+            const vehicleId = formData.get('vehicleId');
+            const date = formData.get('date');
+            const time = formData.get('time');
+            const mileage = formData.get('mileage') || 'Not recorded';
+            
+            // Collect safety check items
+            const safetyChecks = formData.getAll('safetyCheck');
+            const allSafetyItems = ['lights', 'brakes', 'tires', 'fluids', 'mirrors', 'seatbelts', 'horn', 'wipers', 'emergency', 'cleanliness'];
+            const failedItems = allSafetyItems.filter(item => !safetyChecks.includes(item));
+            const safetyNotes = formData.get('safetyNotes') || 'None';
+            
+            // Collect incident info
+            const incidentType = formData.get('incidentType') || 'None';
+            const incidentDescription = formData.get('incidentDescription') || '';
+            const incidentLocation = formData.get('incidentLocation') || '';
+            const incidentTime = formData.get('incidentTime') || '';
+            const injuries = formData.get('injuries') || '';
+            const witnesses = formData.get('witnesses') || '';
+            
+            // Create email subject
+            const emailSubject = `Vehicle Audit Report - ${vehicleId} - ${employeeName} - ${date}`;
+            
+            // Create email body
+            let emailBody = `VEHICLE AUDIT REPORT
+            
+===== BASIC INFORMATION =====
+Employee: ${employeeName}
+Vehicle ID: ${vehicleId}
+Date: ${date}
+Time: ${time}
+Mileage/Hours: ${mileage}
+Submitted: ${new Date().toLocaleString()}
+
+===== SAFETY CHECK RESULTS =====
+Items Passed (${safetyChecks.length}/10):
+${safetyChecks.map(item => `✅ ${item.charAt(0).toUpperCase() + item.slice(1)}`).join('\n')}
+
+${failedItems.length > 0 ? `Items FAILED or Not Checked (${failedItems.length}/10):
+${failedItems.map(item => `❌ ${item.charAt(0).toUpperCase() + item.slice(1)}`).join('\n')}` : 'All safety items passed! ✅'}
+
+Safety Notes: ${safetyNotes}
+
+===== INCIDENT REPORT =====
+Incident Type: ${incidentType}`;
+
+            if (incidentType !== 'None' && incidentType !== '') {
+                emailBody += `
+Description: ${incidentDescription}
+Location: ${incidentLocation}
+Time of Incident: ${incidentTime}
+Injuries: ${injuries}
+Witnesses: ${witnesses}
+
+⚠️ IMMEDIATE ACTION REQUIRED - Incident reported!`;
+            } else {
+                emailBody += `
+No incidents to report. ✅`;
+            }
+
+            emailBody += `
+
+===== SUMMARY =====
+Safety Status: ${safetyChecks.length >= 8 ? '✅ PASS' : '⚠️ ATTENTION NEEDED'}
+Incident Status: ${incidentType === 'None' || incidentType === '' ? '✅ NO INCIDENTS' : '🚨 INCIDENT REPORTED'}
+
+${failedItems.length > 0 || (incidentType !== 'None' && incidentType !== '') ? 
+'⚠️ This vehicle requires immediate attention before use.' : 
+'✅ Vehicle cleared for operation.'}
+
+---
+Generated by Vehicle Audit System`;
+
+            // Create mailto link
+            const mailto = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+            
+            // Try to open email client
+            const emailLink = document.createElement('a');
+            emailLink.href = mailto;
+            emailLink.click();
+            
+            // Show instructions to user
+            const message = incidentType !== 'None' && incidentType !== '' ? 
+                '🚨 INCIDENT REPORTED!\n\nYour email app should open with the audit report.\nPlease send this email immediately to management.\n\n⚠️ Do not operate vehicle until incident is reviewed!' :
+                failedItems.length > 0 ?
+                '⚠️ SAFETY ISSUES FOUND!\n\nYour email app should open with the audit report.\nPlease send this email to management and address issues before operating vehicle.' :
+                '✅ Audit completed successfully!\n\nYour email app should open with the report.\nPlease send the email to complete the audit process.';
+            
+            alert(message);
+            
+            // Reset form after a short delay
+            setTimeout(() => {
+                this.reset();
+                document.getElementById('summarySection').style.display = 'none';
+                document.getElementById('incidentDetails').style.display = 'none';
+                document.querySelectorAll('.checkbox-item').forEach(item => {
+                    item.classList.remove('checked');
+                });
+                
+                // Reset date/time
+                const now = new Date();
+                document.getElementById('date').value = now.toISOString().split('T')[0];
+                document.getElementById('time').value = now.toTimeString().slice(0, 5);
+            }, 2000);
+        });
+
+        // Add some input validation
+        document.querySelectorAll('input[required]').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    this.style.borderColor = '#dc3545';
+                } else {
+                    this.style.borderColor = '#28a745';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
